@@ -83,17 +83,19 @@ Matrix* LoadMatrix()
 	int i = 0;
 	int	j = 0;
 	int n = 0;
+	int f = 0;
 	int rows = 0;
 	int columns = 0;
 	while (c != EOF)
 	{
 		if (c == ',')
 		{
-			if(n == 1)
+			if (n == 1)
 			{
 				matrix->data[i][j] = -matrix->data[i][j];
 				n = 0;
 			}
+			f = 0;
 			j += 1;
 		}
 		if (c == '\n')
@@ -103,6 +105,7 @@ Matrix* LoadMatrix()
 				matrix->data[i][j] = -matrix->data[i][j];
 				n = 0;
 			}
+			f = 0;
 			i += 1;
 			j = 0;
 		}
@@ -110,7 +113,25 @@ Matrix* LoadMatrix()
 		{
 			n = 1;
 		}
-		if(c != ',' && c != '\n' && c != '-') matrix->data[i][j] = matrix->data[i][j] * 10 + (int)c - 48;
+		if (c == '.')
+		{
+			f = 1;
+			c = fgetc(filepointer);
+		}
+		if (f == 0)
+		{
+			if (c != ',' && c != '\n' && c != '-') matrix->data[i][j] = matrix->data[i][j] * 10 + (int)c - 48;
+		}
+		else
+		{
+			float power = 1;
+			for(int p = 0; p<f; p++)
+			{
+				power = power * 10;
+			}
+			if (c != ',' && c != '\n' && c != '-') matrix->data[i][j] = matrix->data[i][j] + (((int)c - 48) / power);
+			f++;
+		}
 		c = fgetc(filepointer);
 		if (i > rows) rows = i;
 		if (j > columns) columns = j;

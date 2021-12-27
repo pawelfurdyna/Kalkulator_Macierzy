@@ -7,7 +7,7 @@
 struct Matrix {
 	int rows;
 	int columns;
-	int** data;
+	float** data;
 };
 typedef struct Matrix Matrix;
 
@@ -82,23 +82,43 @@ Matrix* LoadMatrix()
 	c = fgetc(filepointer);
 	int i = 0;
 	int	j = 0;
+	int n = 0;
 	int rows = 0;
 	int columns = 0;
 	while (c != EOF)
 	{
 		if (c == ',')
 		{
+			if(n == 1)
+			{
+				matrix->data[i][j] = -matrix->data[i][j];
+				n = 0;
+			}
 			j += 1;
 		}
 		if (c == '\n')
 		{
+			if (n == 1)
+			{
+				matrix->data[i][j] = -matrix->data[i][j];
+				n = 0;
+			}
 			i += 1;
 			j = 0;
 		}
-		if(c != ',' && c != '\n') matrix->data[i][j] = matrix->data[i][j] * 10 + (int)c - 48;
+		if (c == '-')
+		{
+			n = 1;
+		}
+		if(c != ',' && c != '\n' && c != '-') matrix->data[i][j] = matrix->data[i][j] * 10 + (int)c - 48;
 		c = fgetc(filepointer);
 		if (i > rows) rows = i;
 		if (j > columns) columns = j;
+	}
+	if (n == 1)
+	{
+		matrix->data[i][j] = -matrix->data[i][j];
+		n = 0;
 	}
 	matrix->rows = rows + 1;
 	matrix->columns = columns + 1;
@@ -113,10 +133,10 @@ Matrix* InitMatrix(int rows, int cols)
 	struct Matrix* matrix = malloc(sizeof(Matrix));
 	matrix->rows = rows;
 	matrix->columns = cols;
-	int** data = malloc(sizeof(int*) * rows);
+	int** data = malloc(sizeof(float*) * rows);
 	for (int x = 0; x < rows; x++)
 	{
-		data[x] = calloc(cols, sizeof(int));
+		data[x] = calloc(cols, sizeof(float));
 	}
 	matrix->data = data;
 
@@ -132,7 +152,7 @@ Matrix* CreateMatrix(int rows, int cols)
 		for (int j = 0; j < cols; j++)
 		{
 			printf("Wprowadz liczbe do pozycji [%d,%d]: ", i + 1, j + 1);
-			scanf_s("%d", &matrix->data[i][j]);
+			scanf_s("%f", &matrix->data[i][j]);
 			ClearBuffer();
 		}
 	}
@@ -172,7 +192,7 @@ void SaveMatrix(Matrix* matrix)
 			{
 				for (int j = 0; j < matrix->columns; j++) 
 				{
-					fprintf(filepointer, "%d", matrix->data[i][j]);
+					fprintf(filepointer, "%f", matrix->data[i][j]);
 					if(j != matrix->columns - 1)
 						fprintf(filepointer, "%c", coma);
 				}
@@ -194,7 +214,7 @@ void PrintMatrix(Matrix* matrix)
 	printf("\n");
 	for (int x = 0; x < matrix->rows; x++) {
 		for (int y = 0; y < matrix->columns; y++) {
-			printf("%d ", matrix->data[x][y]);
+			printf("%.2f ", matrix->data[x][y]);
 		}
 		printf("\n");
 	}

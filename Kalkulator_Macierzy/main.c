@@ -6,7 +6,7 @@
 struct Matrix {
 	int rows;
 	int columns;
-	int** data;
+	float** data;
 };
 
 

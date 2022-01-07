@@ -3,13 +3,6 @@
 #include <stdlib.h>
 #include "functions.h"
 
-struct Matrix {
-	int rows;
-	int columns;
-	float** data;
-};
-
-
 
 int main()
 {

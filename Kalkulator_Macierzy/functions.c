@@ -1,7 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 
 struct Matrix {
@@ -167,13 +166,24 @@ Matrix* InitMatrix(int rows, int cols)
 Matrix* CreateMatrix(int rows, int cols)
 {
 	Matrix* matrix = InitMatrix(rows, cols);
+	char* number[20];
+	int valid;
 
 	for (int i = 0; i < rows; i++)
 	{
 		for (int j = 0; j < cols; j++)
 		{
 			printf("Wprowadz liczbe do pozycji [%d,%d]: ", i + 1, j + 1);
-			scanf_s("%f", &matrix->data[i][j]);
+			scanf("%s", number);
+			valid = ValidNumber(number);
+			while (valid != 0)
+			{
+				printf("Wprowadzono nieprawidlowa liczbe. Podaj jeszcze raz: ");
+				scanf("%s", number);
+				valid = ValidNumber(number);
+			}
+			float validNumber = atof(number);
+			matrix->data[i][j] = validNumber;
 			ClearBuffer();
 		}
 	}
@@ -436,4 +446,34 @@ int CheckTxt(char* filename)
 	}
 	printf("Nie podano rozszerzenia .txt\n");
 	return 1;
+}
+
+int ValidNumber(char* input)
+{
+	int check = 0;
+	int point = 0;
+	for (int i = 0; i < strlen(input); i++)
+	{
+		if (input[i] >= 48 && input[i] <= 57 || input[i] == 46 || input[i] == 45) 
+		{
+			if (i != 0 && input[i] == 45) 
+			{
+				check += 1;
+			}
+			if (input[i] == 46)
+			{
+				point += 1;
+			}
+			check += 0;
+		}
+		else
+		{
+			check += 1;
+		}
+	}
+	if (point > 1) 
+	{
+		check += 1;
+	}
+	return check;
 }

@@ -33,7 +33,7 @@ int main()
 			free(secondMatrix);
 			free(operationMatrix);
 			printf("Czy chcesz wykonac kolejna operacje(t/n)\n");
-			scanf(" %c", &a);
+			a = getchar();
 			if (a == 't')
 			{
 				system("cls");
@@ -62,7 +62,7 @@ int main()
 			free(secondMatrix);
 			free(operationMatrix);
 			printf("Czy chcesz wykonac kolejna operacje(t/n)\n");
-			scanf(" %c", &a);
+			a = getchar();
 			if (a == 't')
 			{
 				system("cls");
@@ -92,7 +92,7 @@ int main()
 			free(firstMatrix);
 			free(operationMatrix);
 			printf("Czy chcesz wykonac kolejna operacje(t/n)\n");
-			scanf(" %c", &a);
+			a = getchar();
 			if (a == 't')
 			{
 				system("cls");
@@ -121,7 +121,7 @@ int main()
 			free(secondMatrix);
 			free(operationMatrix);
 			printf("Czy chcesz wykonac kolejna operacje(t/n)\n");
-			scanf(" %c", &a);
+			a = getchar();
 			if (a == 't')
 			{
 				system("cls");
@@ -146,7 +146,7 @@ int main()
 			free(firstMatrix);
 			free(operationMatrix);
 			printf("Czy chcesz wykonac kolejna operacje(t/n)\n");
-			scanf(" %c", &a);
+			a = getchar();
 			if (a == 't')
 			{
 				system("cls");

@@ -24,6 +24,10 @@ Matrix* SubMatrix(Matrix* firstMatrix, Matrix* secondMatrix, Matrix* operationMa
 Matrix* MultiplyMatrixScalar(Matrix* firstMatrix, int scalar, Matrix* operationMatrix);
 Matrix* MultiplyMatrixMatrix(Matrix* firstMatrix, Matrix* secondMatrix, Matrix* operationMatrix);
 void ClearBuffer();
+int CheckTxt(char* filename);
+int ValidNumber(char* input);
+Matrix* FillMatrix(FILE* filepointer, Matrix* matrix);
+
 
 
 int OperationChoice()
@@ -57,15 +61,13 @@ Matrix* LoadMatrix()
 {
 	Matrix* matrix = InitMatrix(10, 10);
 	FILE *filepointer = NULL;
-	char filename[20], c;
-	int txt = 1;
-	int iter = 0;
+	char filename[20];
 	printf("Wybierz macierz (wprowadz nazwe wraz z rozszerzeniem .txt):\n");
 	system("dir /b *.txt");
 	while(1)
 	{
 		printf(">>>");
-		scanf("%s", filename);
+		scanf("%20s", filename);
 		if (CheckTxt(filename) == 0)
 		{
 			filepointer = fopen(filename, "r");
@@ -78,70 +80,15 @@ Matrix* LoadMatrix()
 		free(matrix);
 		return LoadMatrix();
 	}
-	c = fgetc(filepointer);
-	int i = 0;
-	int	j = 0;
-	int n = 0;
-	int f = 0;
-	int rows = 0;
-	int columns = 0;
-	while (c != EOF)
+
+	matrix = FillMatrix(filepointer, matrix);
+	if (matrix == NULL)
 	{
-		if (c == ',')
-		{
-			if (n == 1)
-			{
-				matrix->data[i][j] = -matrix->data[i][j];
-				n = 0;
-			}
-			f = 0;
-			j += 1;
-		}
-		if (c == '\n')
-		{
-			if (n == 1)
-			{
-				matrix->data[i][j] = -matrix->data[i][j];
-				n = 0;
-			}
-			f = 0;
-			i += 1;
-			j = 0;
-		}
-		if (c == '-')
-		{
-			n = 1;
-		}
-		if (c == '.')
-		{
-			f = 1;
-			c = fgetc(filepointer);
-		}
-		if (f == 0)
-		{
-			if (c != ',' && c != '\n' && c != '-') matrix->data[i][j] = matrix->data[i][j] * 10 + (int)c - 48;
-		}
-		else
-		{
-			float power = 1;
-			for(int p = 0; p<f; p++)
-			{
-				power = power * 10;
-			}
-			if (c != ',' && c != '\n' && c != '-') matrix->data[i][j] = matrix->data[i][j] + (((int)c - 48) / power);
-			f++;
-		}
-		c = fgetc(filepointer);
-		if (i > rows) rows = i;
-		if (j > columns) columns = j;
+		printf("Macierz znajdujaca sie w pliku jest niepoprawna\n\n");
+		free(matrix);
+		return LoadMatrix();
 	}
-	if (n == 1)
-	{
-		matrix->data[i][j] = -matrix->data[i][j];
-		n = 0;
-	}
-	matrix->rows = rows + 1;
-	matrix->columns = columns + 1;
+	
 	PrintMatrix(matrix);
 	printf("\n");
 	fclose(filepointer);
@@ -159,7 +106,7 @@ Matrix* InitMatrix(int rows, int cols)
 		data[x] = calloc(cols, sizeof(float));
 	}
 	matrix->data = data;
-
+	
 	return matrix;
 }
 
@@ -174,12 +121,12 @@ Matrix* CreateMatrix(int rows, int cols)
 		for (int j = 0; j < cols; j++)
 		{
 			printf("Wprowadz liczbe do pozycji [%d,%d]: ", i + 1, j + 1);
-			scanf("%s", number);
+			scanf("%20s", number);
 			valid = ValidNumber(number);
 			while (valid != 0)
 			{
 				printf("Wprowadzono nieprawidlowa liczbe. Podaj jeszcze raz: ");
-				scanf("%s", number);
+				scanf("%20s", number);
 				valid = ValidNumber(number);
 			}
 			float validNumber = atof(number);
@@ -196,7 +143,7 @@ void SaveMatrix(Matrix* matrix)
 	char a;
 	
 	printf("Czy chcesz zapisac wynik (t/n):\n");
-	scanf(" %c", &a);
+	a = getchar();
 	ClearBuffer();
 	system("cls");
 	if (a == 't') 
@@ -210,7 +157,7 @@ void SaveMatrix(Matrix* matrix)
 		while (1)
 		{
 			printf(">>>");
-			scanf("%s", filename);
+			scanf("%20s", filename);
 			if (CheckTxt(filename) == 0)
 			{
 				filepointer = fopen(filename, "w");
@@ -235,9 +182,7 @@ void SaveMatrix(Matrix* matrix)
 
 		printf("Zapisano macierz\n");
 		PrintMatrix(matrix);
-
 	}
-
 }
 
 void PrintMatrix(Matrix* matrix)
@@ -254,7 +199,6 @@ void PrintMatrix(Matrix* matrix)
 
 Matrix* MatrixChoice()
 {
-
 	int col = 0;
 	while (col != 1 && col != 2)
 	{
@@ -286,9 +230,6 @@ Matrix* MatrixChoice()
 		Matrix* matrix = CreateMatrix(rows, cols);
 		return matrix;
 	}
-
-
-	
 }
 
 Matrix* AddMatrix(Matrix* firstMatrix, Matrix* secondMatrix, Matrix* operationMatrix)
@@ -389,8 +330,6 @@ Matrix* MultiplyMatrixMatrix(Matrix* firstMatrix, Matrix* secondMatrix, Matrix* 
 		SaveMatrix(operationMatrix);
 		return operationMatrix;
 	}
-
-
 }
 
 Matrix* MatrixTranspose(Matrix* firstMatrix, Matrix* operationMatrix)
@@ -458,22 +397,98 @@ int ValidNumber(char* input)
 		{
 			if (i != 0 && input[i] == 45) 
 			{
-				check += 1;
+				check++;
 			}
 			if (input[i] == 46)
 			{
-				point += 1;
+				point++;
 			}
-			check += 0;
 		}
 		else
 		{
-			check += 1;
+			check++;
 		}
 	}
 	if (point > 1) 
 	{
-		check += 1;
+		check++;
 	}
 	return check;
+}
+
+Matrix* FillMatrix(FILE* filepointer, Matrix* matrix)
+{
+	int i = 0;
+	int	j = 0;
+	int n = 0;
+	int f = 0;
+	int rows = 0;
+	int columns = 0;
+	char c = fgetc(filepointer);
+
+	while (c != EOF)
+	{
+		if (c == ',')
+		{
+			if (n == 1)
+			{
+				matrix->data[i][j] = -matrix->data[i][j];
+				n = 0;
+			}
+			f = 0;
+			j += 1;
+		}
+		if (c == '\n')
+		{
+			if (n == 1)
+			{
+				matrix->data[i][j] = -matrix->data[i][j];
+				n = 0;
+			}
+			f = 0;
+			i += 1;
+			j = 0;
+		}
+		if (c == '-')
+		{
+			n = 1;
+		}
+		if (c == '.')
+		{
+			f = 1;
+			c = fgetc(filepointer);
+		}
+		if (f == 0)
+		{
+			if (c != ',' && c != '\n' && c != '-') matrix->data[i][j] = matrix->data[i][j] * 10 + (int)c - 48;
+		}
+		else
+		{
+			float power = 1;
+			for (int p = 0; p < f; p++)
+			{
+				power = power * 10;
+			}
+			if (c != ',' && c != '\n' && c != '-') matrix->data[i][j] = matrix->data[i][j] + (((int)c - 48) / power);
+			f++;
+		}
+		c = fgetc(filepointer);
+		if (!(c >= 48 && c <= 57) && c != ',' && c != '\n' && c != '-' && c != '.' && c != EOF)
+		{
+			matrix = NULL;
+			return matrix;
+		}
+		if (i > rows) rows = i;
+		if (j > columns) columns = j;
+		if (i > 10 || j > 10) return matrix = NULL;
+	}
+	if (n == 1)
+	{
+		matrix->data[i][j] = -matrix->data[i][j];
+		n = 0;
+	}
+	matrix->rows = rows + 1;
+	matrix->columns = columns + 1;
+
+	return matrix;
 }
